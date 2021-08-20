@@ -28,26 +28,13 @@ class Exam:
         self.course = None
 
 
-# Set dir_path to current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-# Create empty list of exam objects
 exams = []
 
-# Extract and add text from all exam pdfs to examTexts
 for filename in glob.glob(f"{dir_path}/*.pdf"):
-    exams.append(Exam(pdfminer.high_level.extract_text(filename,
-                     caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
+    exams.append(Exam("VT21 Question 5 testfråga", filename))
 
-# Word(s) to filter questions by
-filterWords = ["DNA"]
-
-# List all questions including the specified word
-for question in exams[0].questions:
-    for word in filterWords:
-        if word.lower() in question.lower():
-            print(f"{question}")
-
-# Tip to remember for later: Codes below represent the symbol for "correct" and "false"
-# Rätt = unicode f00c
-# Fel = unicode f10c
+print(exams[0].semester + "\n")
+print(exams[0].questions[1] + "\n")
+print(exams[4].number + "\n")
