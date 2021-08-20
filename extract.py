@@ -25,6 +25,11 @@ for filename in glob.glob(f"{dir_path}/*.pdf"):
 questionsUnfiltered = text.rsplit("Question")
 questions = [x for x in questionsUnfiltered if "Orzone" not in x and "VT-21" not in x]
 
+# Word(s) to filter questions by
+filterWords = ["citrat"]
+
+# List all questions including the specified word
 for question in questions:
-    if "citrat" in question or "Citrat" in question:
-        print(f"{question}")
+    for word in filterWords:
+        if word.lower() in question.lower():
+            print(f"{question}")
