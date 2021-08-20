@@ -42,7 +42,7 @@ for filename in glob.glob(f"{dir_path}/*.pdf"):
 # Word(s) to filter questions by
 filterWords = ["DNA"]
 
-# List all questions including the specified word
+# List all questions containing the specified word
 for question in exams[0].questions:
     for word in filterWords:
         if word.lower() in question.lower():
