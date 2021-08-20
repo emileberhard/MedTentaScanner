@@ -40,13 +40,18 @@ for filename in glob.glob(f"{dir_path}/*.pdf"):
                      caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
 
 # Word(s) to filter questions by
-filterWords = ["DNA"]
+filterWords = ["cyklin"]
 
-# List all questions containing the specified word
-for question in exams[0].questions:
-    for word in filterWords:
-        if word.lower() in question.lower():
-            print(f"{question}")
+# List all questions containing the specified word and count number of questions
+counter = 0
+for exam in exams:
+    for question in exam.questions:
+        for word in filterWords:
+            if word.lower() in question.lower():
+                print(f"{question}")
+                counter += 1
+
+print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
 
 # Tip to remember for later: Codes below represent the symbol for "correct" and "false"
 # Rätt = unicode f00c
