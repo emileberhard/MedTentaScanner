@@ -24,10 +24,10 @@ class Exam:
         # Remove whitespace and add "question" before number, and add letters for answer alternatives
         for i, question in enumerate(self.questions):
             self.questions[i] = re.sub(r"^\s", f"{self.semester}, Prov {self.number}, Fråga ", self.questions[i])
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "a", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "b", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "c", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "d", self.questions[i], 1)
+            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "A", self.questions[i], 1)
+            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "B", self.questions[i], 1)
+            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "C", self.questions[i], 1)
+            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "D", self.questions[i], 1)
 
         # Add automatic parsing for these later
         self.course = None
