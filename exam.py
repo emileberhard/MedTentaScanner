@@ -33,7 +33,7 @@ class Exam:
 
         for course in courses:
             if course.searchterm in self.text[0:80].lower():
-                self.course = course.name
+                self.course = course
 
         # Parse exam number (ordinary or omtenta)
         if re.search(r"(?<=Kunskapsprov ).", self.path):
@@ -63,15 +63,23 @@ class Exam:
 
         # Fix formatting for questions
         # Remove whitespace and add "question" before number, and add letters for answer alternatives,
-        # and if answer alternative letters are lower case, make them upper case.
         for i, question in enumerate(self.questions):
-            self.questions[i] = re.sub(r"^\s", f"{self.course} {self.semester}, Prov {self.number} - Fråga ", self.questions[i])
+            self.questions[i] = re.sub(r"^\s", f"{self.course.name} {self.semester}, Prov {self.number} - Fråga ", self.questions[i])
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "A", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "B", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "C", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "D", self.questions[i], 1)
-
+            # If answer alternative letters already exist but are lower case, make them upper case.
             self.questions[i] = re.sub(r"^[abcd]\.", "A", self.questions[i], 1, re.MULTILINE)
             self.questions[i] = re.sub(r"^[abcd]\.", "B", self.questions[i], 1, re.MULTILINE)
             self.questions[i] = re.sub(r"^[abcd]\.", "C", self.questions[i], 1, re.MULTILINE)
             self.questions[i] = re.sub(r"^[abcd]\.", "D", self.questions[i], 1, re.MULTILINE)
+
+            # Delete whitespace that might have been accidentally included if question is last on a page
+            pagespaceMatch = re.search(r"(\s+[0-9]{1,2}\s*)*$", self.questions[i])
+            if pagespaceMatch:
+                if len(re.search(r"(\s+[0-9]{1,2}\s*)*$", self.questions[i]).group(0)) > 0:
+                    self.questions[i] = re.sub(r"(\s+[0-9]{1,2}\s*)*$", "", self.questions[i])
+
+            # Delete extra tabs caused by bad parsing
+            self.questions[i] = re.sub(r"\t", " ", self.questions[i])

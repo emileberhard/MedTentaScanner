@@ -29,16 +29,6 @@ for exam in exams:
     for question in exam.questions:
         for word in filterWords:
             if word.lower() in question.lower():
-
-                # Delete whitespace that might have been accidentally included if question is last on a page
-                pagespaceMatch = re.search(r"(\s+[0-9]{1,2}\s*)*$", question)
-                if pagespaceMatch:
-                    if len(re.search(r"(\s+[0-9]{1,2}\s*)*$", question).group(0)) > 0:
-                        question = re.sub(r"(\s+[0-9]{1,2}\s*)*$", "", question)
-
-                # Delete extra tabs caused by bad parsing
-                question = re.sub(r"\t", " ", question)
-
                 # Print questions to both terminal and txt file
                 print(f"{question}\n")
                 questionsDoc.write(question + "\n")
