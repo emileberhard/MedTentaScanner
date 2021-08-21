@@ -57,7 +57,7 @@ for exam in exams:
         for word in filterWords:
             if word.lower() in question.lower():
                 print(f"{question}")
-                questionsDoc.write(question)
+                questionsDoc.write(question + "\n")
                 counter += 1
 
 print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
