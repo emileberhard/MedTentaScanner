@@ -4,7 +4,7 @@ Eftersom "programmet" är i ett tidigt utvecklingsstadie så behöver man tyvär
 
 Instruktioner:
 1. Ladda ner filerna i repot till en mapp
-2. Lägg in extentor i pdf format i mappen
+2. Lägg in extentor i pdf-format i samma mapp
 3. Öppna pythonfilen "extract.py" med någon form av kodredigeringsprogram som är kompatibelt med python
 4. Filtrera tentafrågor genom att ändra orden i "filterWords" på line 43
 5. KÖR 
