@@ -13,6 +13,32 @@ class Exam:
         self.path = path
         self.filename = re.search(r"[^\/]*$", self.path).group(0)
 
+        # Automatic parsing of course name
+        class Course:
+            def __init__(self, name, termin, searchterm, abbreviation=""):
+                self.name = name
+                self.termin = termin
+                self.searchterm = searchterm
+                self.abbreviation = abbreviation
+
+        courses = [
+        Course("Molekyl till Vävnad", "T1", "molekyl", "MtV"),
+        Course("Rörelse och neurovetenskap", "T2", "rörelse", "RoN"),
+        Course("Homeostas", "T3", "homeostas", "HOME"),
+        Course("Patogenes", "T4", "pato", "PATO"),
+        Course("Klinisk förberedelse", "T5", "förberedelse"),
+        Course("Vetenskaplig teori och tillämpning", "T5", "vetenskaplig"),
+        Course("Klinisk medicin 1", "T6", "medicin 1", "KM1"),
+        Course("Klinisk medicin 2", "T7", "medicin 2", "KM2"),
+        Course("Klinisk medicin 3", "T8", "medicin 3", "KM3"),
+        Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
+        Course("Individ och samhälle", "T11", "individ", "IoS"),
+        ]
+
+        for course in courses:
+            if course.searchterm in self.text[0:80].lower():
+                self.course = course.name
+
         # Parse exam number (ordinary or omtenta)
         if re.search(r"(?<=Kunskapsprov ).", self.path):
             self.number = re.search(r"(?<=Kunskapsprov ).", self.path).group(0)
@@ -42,14 +68,11 @@ class Exam:
         # Fix formatting for questions
         # Remove whitespace and add "question" before number, and add letters for answer alternatives
         for i, question in enumerate(self.questions):
-            self.questions[i] = re.sub(r"^\s", f"{self.semester}, Prov {self.number} ({self.filename}) - Fråga ", self.questions[i])
+            self.questions[i] = re.sub(r"^\s", f"{self.course} {self.semester}, Prov {self.number} - Fråga ", self.questions[i])
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "A", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "B", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "C", self.questions[i], 1)
             self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "D", self.questions[i], 1)
-
-        # Add automatic parsing for these later
-        self.course = None
 
 # Set dir_path to current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -60,7 +83,7 @@ exams = []
 # Extract and add text from all exam pdfs to examTexts
 for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
-    if "Patobiologi 1-tentamen" in filename:
+    #if "Patobiologi 1-tentamen" in filename:
         exams.append(Exam(pdfminer.high_level.extract_text(filename,
                      caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
 
