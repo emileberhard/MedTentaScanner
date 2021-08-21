@@ -47,6 +47,9 @@ for filename in glob.glob(f"{dir_path}/*.pdf"):
 # Word(s) to filter questions by
 filterWords = ["cyklin", "Cdk", "CKI"]
 
+# Open or create txt file for storing questions
+questionsDoc = open(f"Tentafrågor som innehåller {filterWords}.txt","w")
+
 # List all questions containing the specified word and count number of questions
 counter = 0
 for exam in exams:
@@ -54,9 +57,12 @@ for exam in exams:
         for word in filterWords:
             if word.lower() in question.lower():
                 print(f"{question}")
+                questionsDoc.write(question)
                 counter += 1
 
 print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
+
+
 
 # Tip to remember for later: Codes below represent the symbol for "correct" and "false"
 # Rätt = unicode f00c
