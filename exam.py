@@ -41,7 +41,7 @@ class Exam:
 
             ### FIX FORMATTING FOR QUESTIONS ###
             # Add a "title" to the question
-            self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga ", self.text)
+            self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga {self.number}", self.text)
 
             # Remove whitespace and add "question" before number, and add letters for answer alternatives,
             self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
@@ -64,7 +64,7 @@ class Exam:
             # Delete extra tabs caused by bad parsing
             self.text = re.sub(r"\t", " ", self.text)
 
-            # Isolate the actual question part of the question
+            # Isolate the actual question part of the
             self.question = re.search(r".*(?=^A)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
             self.question = re.search(r".*\S", self.question).group(0)
 
@@ -108,11 +108,28 @@ class Exam:
         elif re.search(r"(F|f)råga", self.text):
             self.rawQuestions = re.split(r"(?:F|f)råga(?=\s)", self.text)
 
-        # Filter out any questions containing "Orzone"
-        self.rawQuestions = [x for x in self.rawQuestions if "Orzone".lower() not in x.lower()]
+        #Debug
+        # Need to make it so that the parser removes Orzone endings from real questions
+        # and also removes Orzone-only questions without removing real questions
+        print(f"\nFound a total of {len(self.rawQuestions)} questions BEFORE FORMATTING\n")
+        #Debug
+
+        # FILTERING OUT FAKE QUESTIONS
+        # Filter out any questions containing only "Orzone..."
+        self.rawQuestions = [x for x in self.rawQuestions if not
+                            re.search(r"^(?<!\w)\s*\d*\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", x, flags=re.IGNORECASE|re.DOTALL)]
+        # Filter out questions containing a question, but with an "Orzone.. at the end"
+        self.rawQuestions = [re.sub(r"\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com\s*\+?\s*$", "", x) for x in self.rawQuestions]
         # Filter out any questions containing semester (1st "question") and course name from questions
         self.rawQuestions = [x for x in self.rawQuestions if not
                             re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.searchterm}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
+
+        #Debug
+        print(f"\nFound a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING\n")
+        #Debug
+
+
+
 
         # Make a list of question objects using the questions extracted using split
         self.questions = []
