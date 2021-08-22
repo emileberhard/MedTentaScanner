@@ -16,9 +16,10 @@ for filename in glob.glob(f"{dir_path}/Tentor/Pato/*.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
                  caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
+    print(f"Finished scanning {filename}...\n")
 
 # Word(s) to filter questions by
-filterWords = [" "]
+filterWords = [""]
 
 # Open or create txt file for storing questions
 questionsDoc = open(f"Tentafrågor som innehåller {filterWords}.txt","w")
@@ -28,11 +29,16 @@ counter = 0
 for exam in exams:
     for question in exam.questions:
         for word in filterWords:
-            if word.lower() in question.lower():
+            if word.lower() in question.text.lower():
                 # Print questions to both terminal and txt file
-                print(f"{question}\n")
-                questionsDoc.write(question + "\n")
+                #print(f"{question.text}\n")
+                questionsDoc.write(question.text + "\n")
                 counter += 1
+
+for exam in exams:
+    for question in exam.questions:
+        if "?" not in question.text:
+            print(question.text)
 
 # Print quick scan summary with no. of questions found and exams searched
 print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")

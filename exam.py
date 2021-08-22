@@ -1,37 +1,82 @@
 import re
 
+#Class for exams
 class Exam:
+
+    # Inner class for courses
+    class Course:
+        def __init__(self, name, termin, searchterm, abbreviation=""):
+            self.name = name
+            self.termin = termin
+            self.searchterm = searchterm
+            self.abbreviation = abbreviation
+
+    # Make a static list with all medicine courses (at Lund Uni)
+    courses = [
+    Course("Molekyl till Vävnad", "T1", "molekyl", "MtV"),
+    Course("Rörelse och neurovetenskap", "T2", "rörelse", "RoN"),
+    Course("Homeostas", "T3", "homeostas", "HOME"),
+    Course("Patogenes", "T4", "pato", "PATO"),
+    Course("Klinisk förberedelse", "T5", "förberedelse"),
+    Course("Vetenskaplig teori och tillämpning", "T5", "vetenskaplig"),
+    Course("Klinisk medicin 1", "T6", "medicin 1", "KM1"),
+    Course("Klinisk medicin 2", "T7", "medicin 2", "KM2"),
+    Course("Klinisk medicin 3", "T8", "medicin 3", "KM3"),
+    Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
+    Course("Individ och samhälle", "T11", "individ", "IoS"),
+    ]
+    # Keeps going... But is folded to take less space
+
+    # Class for questions - to keep track of question, answer alternatives,
+    # and store correct answer
+    class Question:
+        def __init__(self, text, exam):
+            self.text = text
+            self.exam = exam
+
+            ### FIX FORMATTING FOR QUESTIONS ###
+            # Add a "title" to the question
+            self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga ", self.text)
+
+            # Remove whitespace and add "question" before number, and add letters for answer alternatives,
+            self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "B", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "C", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "D", self.text, 1)
+
+            # If answer alternative letters already exist but are lower case, make them upper case.
+            self.text = re.sub(r"^[abcd]\.", "A", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "B", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "C", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
+
+            # Delete whitespace that might have been accidentally included if question is last on a page
+            pagespaceMatch = re.search(r"(\s+[0-9]{1,2}\s*)*$", self.text)
+            if pagespaceMatch:
+                if len(re.search(r"(\s+[0-9]{1,2}\s*)*$", self.text).group(0)) > 0:
+                    self.text = re.sub(r"(\s+[0-9]{1,2}\s*)*$", "", self.text)
+
+            # Delete extra tabs caused by bad parsing
+            self.text = re.sub(r"\t", " ", self.text)
+
+            # Isolate the actual question part of the question
+            self.question = re.search(r".*(?=^A)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
+            self.question = re.search(r".*\S", self.question).group(0)
+
+            # Parse answer alternatives
+            self.answerAlternatives = re.sub(r".*(?=^A)", "", self.text, flags=re.MULTILINE | re.DOTALL)
+
     def __init__(self, text, path):
         # Add text to text string
         self.text = text
+        print(text)
 
         # Add file path to path string
         self.path = path
         self.filename = re.search(r"[^\/]*$", self.path).group(0)
 
         # Automatic parsing of course name
-        class Course:
-            def __init__(self, name, termin, searchterm, abbreviation=""):
-                self.name = name
-                self.termin = termin
-                self.searchterm = searchterm
-                self.abbreviation = abbreviation
-
-        courses = [
-        Course("Molekyl till Vävnad", "T1", "molekyl", "MtV"),
-        Course("Rörelse och neurovetenskap", "T2", "rörelse", "RoN"),
-        Course("Homeostas", "T3", "homeostas", "HOME"),
-        Course("Patogenes", "T4", "pato", "PATO"),
-        Course("Klinisk förberedelse", "T5", "förberedelse"),
-        Course("Vetenskaplig teori och tillämpning", "T5", "vetenskaplig"),
-        Course("Klinisk medicin 1", "T6", "medicin 1", "KM1"),
-        Course("Klinisk medicin 2", "T7", "medicin 2", "KM2"),
-        Course("Klinisk medicin 3", "T8", "medicin 3", "KM3"),
-        Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
-        Course("Individ och samhälle", "T11", "individ", "IoS"),
-        ]
-
-        for course in courses:
+        for course in self.courses:
             if course.searchterm in self.text[0:80].lower():
                 self.course = course
 
@@ -53,33 +98,19 @@ class Exam:
         elif re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.text[0:100]):
             self.semester = re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.text[0:100]).group(0).upper()
 
-        # Split text into questions and remove "Orzone" and "semester" from questions
+        # Split text into questions
         if re.search(r"(Q|q)uestion", self.text):
-            self.questions = self.text.rsplit("Question")
+            self.rawQuestions = self.text.rsplit("Question")
         elif re.search(r"(F|f)råga", self.text):
-            self.questions = re.split(r"(F|f)råga", self.text)
+            self.rawQuestions = re.split(r"(?:F|f)råga\s\d{1,2}", self.text)
+
         # Filter out any questions containing "Orzone" and semester from questions
-        self.questions = [x for x in self.questions if "Orzone" not in x and self.semester not in x]
+        self.rawQuestions = [x for x in self.rawQuestions if "Orzone" not in x and self.course.searchterm not in x.lower()]
 
-        # Fix formatting for questions
-        # Remove whitespace and add "question" before number, and add letters for answer alternatives,
-        for i, question in enumerate(self.questions):
-            self.questions[i] = re.sub(r"^\s", f"{self.course.name} {self.semester}, Prov {self.number} - Fråga ", self.questions[i])
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "A", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "B", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "C", self.questions[i], 1)
-            self.questions[i] = re.sub(r"(\uF00C|\uF10C)", "D", self.questions[i], 1)
-            # If answer alternative letters already exist but are lower case, make them upper case.
-            self.questions[i] = re.sub(r"^[abcd]\.", "A", self.questions[i], 1, re.MULTILINE)
-            self.questions[i] = re.sub(r"^[abcd]\.", "B", self.questions[i], 1, re.MULTILINE)
-            self.questions[i] = re.sub(r"^[abcd]\.", "C", self.questions[i], 1, re.MULTILINE)
-            self.questions[i] = re.sub(r"^[abcd]\.", "D", self.questions[i], 1, re.MULTILINE)
+        # testing
+        print(f"{self.filename} har enl scanner {len(self.rawQuestions)} st frågor")
 
-            # Delete whitespace that might have been accidentally included if question is last on a page
-            pagespaceMatch = re.search(r"(\s+[0-9]{1,2}\s*)*$", self.questions[i])
-            if pagespaceMatch:
-                if len(re.search(r"(\s+[0-9]{1,2}\s*)*$", self.questions[i]).group(0)) > 0:
-                    self.questions[i] = re.sub(r"(\s+[0-9]{1,2}\s*)*$", "", self.questions[i])
-
-            # Delete extra tabs caused by bad parsing
-            self.questions[i] = re.sub(r"\t", " ", self.questions[i])
+        # Make a list of question objects using the questions extracted using split
+        self.questions = []
+        for question in self.rawQuestions:
+            self.questions.append(self.Question(question, self))
