@@ -35,11 +35,6 @@ for exam in exams:
                 questionsDoc.write(question.text + "\n")
                 counter += 1
 
-for exam in exams:
-    for question in exam.questions:
-        if "?" not in question.text:
-            print(question.text)
-
 # Print quick scan summary with no. of questions found and exams searched
 print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
 

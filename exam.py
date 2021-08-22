@@ -34,6 +34,11 @@ class Exam:
             self.text = text
             self.exam = exam
 
+            # Add question number to number variable (before doing anything else to self.text)
+            self.number = re.search(r"\d{1,3}", self.text).group(0)
+            # Remove question number from self.text
+            self.text = re.sub(r"\d{1,3}", "", self.text, 1)
+
             ### FIX FORMATTING FOR QUESTIONS ###
             # Add a "title" to the question
             self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga ", self.text)
@@ -69,7 +74,6 @@ class Exam:
     def __init__(self, text, path):
         # Add text to text string
         self.text = text
-        print(text)
 
         # Add file path to path string
         self.path = path
@@ -93,8 +97,8 @@ class Exam:
             self.number = "- oklart (men förmodligen ordinarie prov)"
 
         # Parse exam semester and year (i.e VTXX or HTXX)
-        if re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.path):
-            self.semester = re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.path).group(0).upper()
+        if re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.filename):
+            self.semester = re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.filename).group(0).upper()
         elif re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.text[0:100]):
             self.semester = re.search(r"(V|H|v|h)(T|t)-? ?[1-2][0-9]", self.text[0:100]).group(0).upper()
 
@@ -102,13 +106,13 @@ class Exam:
         if re.search(r"(Q|q)uestion", self.text):
             self.rawQuestions = self.text.rsplit("Question")
         elif re.search(r"(F|f)råga", self.text):
-            self.rawQuestions = re.split(r"(?:F|f)råga\s\d{1,2}", self.text)
+            self.rawQuestions = re.split(r"(?:F|f)råga(?=\s)", self.text)
 
-        # Filter out any questions containing "Orzone" and semester from questions
-        self.rawQuestions = [x for x in self.rawQuestions if "Orzone" not in x and self.course.searchterm not in x.lower()]
-
-        # testing
-        print(f"{self.filename} har enl scanner {len(self.rawQuestions)} st frågor")
+        # Filter out any questions containing "Orzone"
+        self.rawQuestions = [x for x in self.rawQuestions if "Orzone".lower() not in x.lower()]
+        # Filter out any questions containing semester (1st "question") and course name from questions
+        self.rawQuestions = [x for x in self.rawQuestions if not
+                            re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.abbreviation}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
 
         # Make a list of question objects using the questions extracted using split
         self.questions = []
