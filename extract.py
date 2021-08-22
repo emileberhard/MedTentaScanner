@@ -2,7 +2,6 @@ import pdfminer.high_level
 from pdfminer.layout import LAParams
 import glob
 import os
-import re
 import exam
 
 # Set dir_path to current directory
@@ -22,7 +21,7 @@ for filename in glob.glob(f"{dir_path}/Tentor/Kunskapsprov 1 VT21 med svar.pdf")
 filterWords = [""]
 
 # Open or create txt file for storing questions
-questionsDoc = open(f"Tentafrågor som innehåller {filterWords}.txt","w")
+questionsDoc = open(f"Arkiv/Tentafrågor som innehåller {filterWords}.txt", "w")
 
 # List all questions containing the specified word and count number of questions
 counter = 0

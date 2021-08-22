@@ -56,10 +56,10 @@ class Exam:
             self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
 
             # Delete whitespace that might have been accidentally included if question is last on a page
-            pagespaceMatch = re.search(r"(\s+[0-9]{1,2}\s*)*$", self.text)
+            pagespaceMatch = re.search(r"(?<=D)*\s*'?\s*$", self.text)
             if pagespaceMatch:
-                if len(re.search(r"(\s+[0-9]{1,2}\s*)*$", self.text).group(0)) > 0:
-                    self.text = re.sub(r"(\s+[0-9]{1,2}\s*)*$", "", self.text)
+                if len(re.search(r"(?<=D)*\s*'?\s*$", self.text).group(0)) > 0:
+                    self.text = re.sub(r"(?<=D)*\s*'?\s*$", "", self.text)
 
             # Delete extra tabs caused by bad parsing
             self.text = re.sub(r"\t", " ", self.text)
@@ -69,12 +69,17 @@ class Exam:
             self.question = re.search(r".*\S", self.question).group(0)
 
             # Parse answer alternatives
-            self.answerAlternatives = re.sub(r".*(?=^A)", "", self.text, flags=re.MULTILINE | re.DOTALL)
+            self.answerAlternatives = {
+                "A": re.search(r"(?<=^A\s).*(?=\n^B)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "B": re.search(r"(?<=^B\s).*(?=\n^C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "C": re.search(r"(?<=^C\s).*(?=\n^D)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "D": re.search(r"(?<=^D\s).*\b", self.text, re.MULTILINE | re.DOTALL).group(0),
+            }
 
     def __init__(self, text, path):
         # Add text to text string
         self.text = text
-
+        print(self.text)
         # Add file path to path string
         self.path = path
         self.filename = re.search(r"[^\/]*$", self.path).group(0)
@@ -118,18 +123,15 @@ class Exam:
         # Filter out any questions containing only "Orzone..."
         self.rawQuestions = [x for x in self.rawQuestions if not
                             re.search(r"^(?<!\w)\s*\d*\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", x, flags=re.IGNORECASE|re.DOTALL)]
-        # Filter out questions containing a question, but with an "Orzone.. at the end"
-        self.rawQuestions = [re.sub(r"\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com\s*\+?\s*$", "", x) for x in self.rawQuestions]
-        # Filter out any questions containing semester (1st "question") and course name from questions
+        # Filter out questions containing a question, but with an "Orzone.. or Course at the end"
+        self.rawQuestions = [re.sub(r"\sOrzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", "", x) for x in self.rawQuestions]
+        # Filter out any mentions of semester and course name from questions
         self.rawQuestions = [x for x in self.rawQuestions if not
                             re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.searchterm}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
 
         #Debug
         print(f"\nFound a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING\n")
         #Debug
-
-
-
 
         # Make a list of question objects using the questions extracted using split
         self.questions = []
