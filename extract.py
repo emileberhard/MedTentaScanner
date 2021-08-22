@@ -12,7 +12,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 exams = []
 
 # Extract and add text from all exam pdfs to examTexts
-for filename in glob.glob(f"{dir_path}/Tentor/Pato/*.pdf"):
+for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
                  caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
@@ -31,7 +31,7 @@ for exam in exams:
         for word in filterWords:
             if word.lower() in question.text.lower():
                 # Print questions to both terminal and txt file
-                #print(f"{question.text}\n")
+                print(f"{question.text}\n")
                 questionsDoc.write(question.text + "\n")
                 counter += 1
 

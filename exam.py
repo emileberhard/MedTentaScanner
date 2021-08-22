@@ -112,7 +112,7 @@ class Exam:
         self.rawQuestions = [x for x in self.rawQuestions if "Orzone".lower() not in x.lower()]
         # Filter out any questions containing semester (1st "question") and course name from questions
         self.rawQuestions = [x for x in self.rawQuestions if not
-                            re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.abbreviation}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
+                            re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.searchterm}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
 
         # Make a list of question objects using the questions extracted using split
         self.questions = []
