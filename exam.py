@@ -113,21 +113,20 @@ class Exam:
         elif re.search(r"(F|f)råga", self.text):
             self.rawQuestions = re.split(r"(?:F|f)råga(?=\s)", self.text)
 
-        #Debug
+        # Debug
         # Need to make it so that the parser removes Orzone endings from real questions
         # and also removes Orzone-only questions without removing real questions
         print(f"\nFound a total of {len(self.rawQuestions)} questions BEFORE FORMATTING\n")
-        #Debug
+        # Debug
 
         # FILTERING OUT FAKE QUESTIONS
         # Filter out any questions containing only "Orzone..."
-        self.rawQuestions = [x for x in self.rawQuestions if not
-                            re.search(r"^(?<!\w)\s*\d*\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", x, flags=re.IGNORECASE|re.DOTALL)]
+        self.rawQuestions = [x for x in self.rawQuestions if not re.search(r"^(?<!\w)\s*\d*\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", x, flags=re.IGNORECASE|re.DOTALL)]
         # Filter out questions containing a question, but with an "Orzone.. or Course at the end"
         self.rawQuestions = [re.sub(r"\sOrzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", "", x) for x in self.rawQuestions]
-        # Filter out any mentions of semester and course name from questions
-        self.rawQuestions = [x for x in self.rawQuestions if not
-                            re.search(rf"^(?=.*(h|v)t-?\d\d\D)(?=.*{self.course.searchterm}).*$", x, flags=re.IGNORECASE|re.DOTALL)]
+        # Delete course name and semester from questions then filter out empty questions
+        self.rawQuestions = [re.sub(rf"\s*[\w ]*{self.course.searchterm}.*[vh]t-?\d\d.*$", "", x) for x in self.rawQuestions]
+        self.rawQuestions = [x for x in self.rawQuestions if len(x) < 1]
 
         #Debug
         print(f"\nFound a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING\n")
