@@ -3,6 +3,7 @@ from pdfminer.layout import LAParams
 import glob
 import os
 import exam
+import textract
 
 # Set dir_path to current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -11,10 +12,21 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 exams = []
 
 # Extract and add text from all exam pdfs to examTexts
-for filename in glob.glob(f"{dir_path}/Tentor/Kunskapsprov 1 VT21 med svar.pdf"):
+for filename in glob.glob(f"{dir_path}/Tentor/Kunskapsprov 1 VT19 med svar.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
-    exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
-                 caching=True, codec='utf-8', laparams=LAParams(line_margin=4)), filename))
+    exams.append(exam.Exam(textract.process(filename).decode('utf-8'), filename))
+    # try:
+    #     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
+    #                                                             caching=True, codec='utf-8',
+    #                                                             laparams=LAParams(line_margin=4)),
+    #                                                             filename))
+    # except:
+    #     print("Scan failed, trying again with different settings...")
+    #     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
+    #                                                             caching=True, codec='utf-8',
+    #                                                             laparams=LAParams(line_margin=4, line_overlap=0.4)),
+    #                                                             filename))
+
     print(f"Finished scanning {filename}...\n")
 
 # Word(s) to filter questions by

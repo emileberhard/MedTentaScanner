@@ -43,6 +43,15 @@ class Exam:
             # Add a "title" to the question
             self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga {self.number}", self.text)
 
+            print(self.text)
+            # Parse answer alternatives
+            self.answerAlternatives = {
+                "A": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "B": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "C": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "D": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+            }
+            
             # Remove whitespace and add "question" before number, and add letters for answer alternatives,
             self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
             self.text = re.sub(r"(\uF00C|\uF10C)", "B", self.text, 1)
@@ -67,14 +76,6 @@ class Exam:
             # Isolate the actual question part of the
             self.question = re.search(r".*(?=^A)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
             self.question = re.search(r".*\S", self.question).group(0)
-
-            # Parse answer alternatives
-            self.answerAlternatives = {
-                "A": re.search(r"(?<=^A\s).*(?=\n^B)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "B": re.search(r"(?<=^B\s).*(?=\n^C)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "C": re.search(r"(?<=^C\s).*(?=\n^D)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "D": re.search(r"(?<=^D\s).*\b", self.text, re.MULTILINE | re.DOTALL).group(0),
-            }
 
     def __init__(self, text, path):
         # Add text to text string
@@ -122,11 +123,18 @@ class Exam:
         # FILTERING OUT FAKE QUESTIONS
         # Filter out any questions containing only "Orzone..."
         self.rawQuestions = [x for x in self.rawQuestions if not re.search(r"^(?<!\w)\s*\d*\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", x, flags=re.IGNORECASE|re.DOTALL)]
+
         # Filter out questions containing a question, but with an "Orzone.. or Course at the end"
-        self.rawQuestions = [re.sub(r"\sOrzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*$", "", x) for x in self.rawQuestions]
+        self.rawQuestions = [re.sub(r"\s*Orzone\s*AB\s*Gothenburg\s*www\.orzone\.com.*\u000C.*$", "", x, flags=re.IGNORECASE|re.DOTALL) for x in self.rawQuestions]
+
         # Delete course name and semester from questions then filter out empty questions
-        self.rawQuestions = [re.sub(rf"\s*[\w ]*{self.course.searchterm}.*[vh]t-?\d\d.*$", "", x) for x in self.rawQuestions]
-        self.rawQuestions = [x for x in self.rawQuestions if len(x) < 1]
+        self.rawQuestions = [re.sub(rf"\s*[\w ]*{self.course.searchterm}.*[vh]t-?\d\d.*$", "", x, flags=re.IGNORECASE|re.DOTALL) for x in self.rawQuestions]
+
+        # Delete questions that are shorter than 50 because these have typically been deleted
+        for question in self.rawQuestions:
+            if len(question) < 50 and len(question) > 10:
+                print(f"Deleting the the following question because it is shorter than 50 characters (probably because it was removed from the test):\n \"{question}\" \n")
+        self.rawQuestions = [x for x in self.rawQuestions if len(x) > 50]
 
         #Debug
         print(f"\nFound a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING\n")
