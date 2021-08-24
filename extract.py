@@ -1,5 +1,7 @@
 import glob
 import os
+import random
+
 import exam
 import textract
 
@@ -13,22 +15,10 @@ exams = []
 for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
     exams.append(exam.Exam(textract.process(filename).decode('utf-8'), filename))
-    # try:
-    #     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
-    #                                                             caching=True, codec='utf-8',
-    #                                                             laparams=LAParams(line_margin=4)),
-    #                                                             filename))
-    # except:
-    #     print("Scan failed, trying again with different settings...")
-    #     exams.append(exam.Exam(pdfminer.high_level.extract_text(filename,
-    #                                                             caching=True, codec='utf-8',
-    #                                                             laparams=LAParams(line_margin=4, line_overlap=0.4)),
-    #                                                             filename))
-
     print(f"Finished scanning {filename}...\n")
 
 # Word(s) to filter questions by
-filterWords = [""]
+filterWords = ["cyklin"]
 
 # Open or create txt file for storing questions
 questionsDoc = open(f"Arkiv/Tentafrågor som innehåller {filterWords}.txt", "w")
@@ -40,8 +30,24 @@ for exam in exams:
         for word in filterWords:
             if word.lower() in question.text.lower():
                 # Print questions to both terminal and txt file
-                print(f"{question.text}\n")
-                questionsDoc.write(question.text + "\n")
+                print(f"{question.title}\n{question.question}")
+
+                # Shuffle answer alternatives
+                keys = list(question.answerAlternatives.keys())
+                random.shuffle(keys)
+
+                # Print answer alternatives
+                i = 0
+                answerAltLetters = ["A", "B", "C", "D"]
+                for ansAlt in keys:
+                    print(f"\n{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}")
+                    if question.answer in question.answerAlternatives[ansAlt]:
+                        answerLetter = answerAltLetters[i]
+                    i += 1
+
+                print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
+                print("\n")
+                #questionsDoc.write(question.text + "\n")
                 counter += 1
 
 # Print quick scan summary with no. of questions found and exams searched

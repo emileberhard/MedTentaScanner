@@ -45,10 +45,10 @@ class Exam:
             self.question = re.search(r".*\S", self.question, re.DOTALL).group(0)
             self.question = re.sub(r"^\s\n", "", self.question)
 
-            # Add a "title" to the question
+            # Add a "title" to the question and add title to title variable as well
+            self.title = f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga {self.number}"
             self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga {self.number}", self.text)
 
-            print(self.text)
             # Parse answer alternatives
             self.answerAlternatives = {
                 "A": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[0],
@@ -105,7 +105,7 @@ class Exam:
     def __init__(self, text, path):
         # Add text to text string
         self.text = text
-        print(self.text)
+
         # Add file path to path string
         self.path = path
         self.filename = re.search(r"[^\/]*$", self.path).group(0)
@@ -148,7 +148,7 @@ class Exam:
         # Debug
         # Need to make it so that the parser removes Orzone endings from real questions
         # and also removes Orzone-only questions without removing real questions
-        print(f"\nFound a total of {len(self.rawQuestions)} questions BEFORE FORMATTING\n")
+        print(f"\nFound a total of {len(self.rawQuestions)} questions BEFORE FORMATTING")
         # Debug
 
         # FILTERING OUT FAKE QUESTIONS
@@ -162,9 +162,6 @@ class Exam:
         self.rawQuestions = [re.sub(rf"\s*[\w ]*{self.course.searchterm}.*[vh]t-?\d\d.*$", "", x, flags=re.IGNORECASE|re.DOTALL) for x in self.rawQuestions]
 
         # Delete questions that are shorter than 50 because these have typically been deleted
-        for question in self.rawQuestions:
-            if len(question) < 50 and len(question) > 10:
-                print(f"Deleting the the following question because it is shorter than 50 characters (probably because it was removed from the test):\n \"{question}\" \n")
         self.rawQuestions = [x for x in self.rawQuestions if len(x) > 50]
 
         #Debug
