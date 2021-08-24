@@ -1,5 +1,3 @@
-import pdfminer.high_level
-from pdfminer.layout import LAParams
 import glob
 import os
 import exam
@@ -12,7 +10,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 exams = []
 
 # Extract and add text from all exam pdfs to examTexts
-for filename in glob.glob(f"{dir_path}/Tentor/Kunskapsprov 1 VT19 med svar.pdf"):
+for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
     # Line below is used for testing or for when only certain exams should be searched
     exams.append(exam.Exam(textract.process(filename).decode('utf-8'), filename))
     # try:

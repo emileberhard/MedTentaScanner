@@ -1,8 +1,6 @@
 import re
 
-#Class for exams
 class Exam:
-
     # Inner class for courses
     class Course:
         def __init__(self, name, termin, searchterm, abbreviation=""):
@@ -26,17 +24,21 @@ class Exam:
         Course("Individ och samhälle", "T11", "individ", "IoS"),
     ]
 
-    # Class for questions - to keep track of question, answer alternatives,
-    # and store correct answer
+    # Class for questions - to keep track of question, answer alternatives, and store correct answer
     class Question:
         def __init__(self, text, exam):
             self.text = text
             self.exam = exam
+            self.answer = "No answer set"
 
             # Add question number to number variable (before doing anything else to self.text)
             self.number = re.search(r"\d{1,3}", self.text).group(0)
             # Remove question number from self.text
             self.text = re.sub(r"\d{1,3}", "", self.text, 1)
+
+            # Parse answer for new exams
+            if self.exam.examType == "new":
+                self.answer = re.search(r"(?<=\uF00C)\s*[\S* ]*", self.text).group(0)
 
             # Isolate the actual question part of the
             self.question = re.search(r".*?(?=^[\uF00C\uF10C)✔])", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
@@ -54,6 +56,12 @@ class Exam:
                 "C": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[2],
                 "D": re.search(r"(?!.*(\uF00C|\uF10C))(?<=(\uF00C|\uF10C)).*\b", self.text, re.DOTALL).group(0)
             }
+
+            # Fix formatting of answer (new exam type)
+            if self.exam.examType == "new":
+                for ansAlt in self.answerAlternatives:
+                    if self.answer in self.answerAlternatives[ansAlt]:
+                        self.answer = self.answerAlternatives[ansAlt]
 
             # Delete whitespace that might have been accidentally included if question is last on a page
             pagespaceMatch = re.search(r"(?<=D)*\s*'?\s*$", self.text)
@@ -76,19 +84,22 @@ class Exam:
             self.text = re.sub(r"^[abcd]\.", "C", self.text, 1, re.MULTILINE)
             self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
 
-            # Parse answer
-            if re.search(r"[A✔]\s*[A✔]", self.text):
-                self.answer = self.answerAlternatives["A"]
-            elif re.search(r"[B✔]\s*[B✔]", self.text):
-                self.answer = self.answerAlternatives["B"]
-            elif re.search(r"[C✔]\s*[C✔]", self.text):
-                self.answer = self.answerAlternatives["C"]
-            elif re.search(r"[D✔]\s*[D✔]", self.text):
-                self.answer = self.answerAlternatives["D"]
+            # Parse answer if old exam type
+            if self.exam.examType == "old":
+                if re.search(r"[A✔]\s*[A✔]", self.text):
+                    self.answer = self.answerAlternatives["A"]
+                elif re.search(r"[B✔]\s*[B✔]", self.text):
+                    self.answer = self.answerAlternatives["B"]
+                elif re.search(r"[C✔]\s*[C✔]", self.text):
+                    self.answer = self.answerAlternatives["C"]
+                elif re.search(r"[D✔]\s*[D✔]", self.text):
+                    self.answer = self.answerAlternatives["D"]
 
-            # Clean up question alternatives and answer (remove linebreaks and checkmark)
+            # Clean up question alternatives (remove linebreaks and checkmark)
             for alternative in self.answerAlternatives:
-                self.answerAlternatives[alternative] = re.sub("\n|✔", "", self.answerAlternatives[alternative])
+                    self.answerAlternatives[alternative] = re.sub("\n|✔", "", self.answerAlternatives[alternative])
+
+            # Clean up answer
             self.answer = re.sub("\n|✔", "", self.answer)
 
     def __init__(self, text, path):
@@ -98,6 +109,12 @@ class Exam:
         # Add file path to path string
         self.path = path
         self.filename = re.search(r"[^\/]*$", self.path).group(0)
+
+        # Parse exam type - old or new
+        if re.search("✔", self.text):
+            self.examType = "old"
+        else:
+            self.examType = "new"
 
         # Automatic parsing of course name
         for course in self.courses:
