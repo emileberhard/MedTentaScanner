@@ -13,17 +13,17 @@ class Exam:
 
     # Make a static list with all medicine courses (at Lund Uni)
     courses = [
-    Course("Molekyl till Vävnad", "T1", "molekyl", "MtV"),
-    Course("Rörelse och neurovetenskap", "T2", "rörelse", "RoN"),
-    Course("Homeostas", "T3", "homeostas", "HOME"),
-    Course("Patogenes", "T4", "pato", "PATO"),
-    Course("Klinisk förberedelse", "T5", "förberedelse"),
-    Course("Vetenskaplig teori och tillämpning", "T5", "vetenskaplig"),
-    Course("Klinisk medicin 1", "T6", "medicin 1", "KM1"),
-    Course("Klinisk medicin 2", "T7", "medicin 2", "KM2"),
-    Course("Klinisk medicin 3", "T8", "medicin 3", "KM3"),
-    Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
-    Course("Individ och samhälle", "T11", "individ", "IoS"),
+        Course("Molekyl till Vävnad", "T1", "molekyl", "MtV"),
+        Course("Rörelse och neurovetenskap", "T2", "rörelse", "RoN"),
+        Course("Homeostas", "T3", "homeostas", "HOME"),
+        Course("Patogenes", "T4", "pato", "PATO"),
+        Course("Klinisk förberedelse", "T5", "förberedelse"),
+        Course("Vetenskaplig teori och tillämpning", "T5", "vetenskaplig"),
+        Course("Klinisk medicin 1", "T6", "medicin 1", "KM1"),
+        Course("Klinisk medicin 2", "T7", "medicin 2", "KM2"),
+        Course("Klinisk medicin 3", "T8", "medicin 3", "KM3"),
+        Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
+        Course("Individ och samhälle", "T11", "individ", "IoS"),
     ]
     # Keeps going... But is folded to take less space
 
@@ -51,18 +51,7 @@ class Exam:
                 "C": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
                 "D": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
             }
-            
-            # Remove whitespace and add "question" before number, and add letters for answer alternatives,
-            self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
-            self.text = re.sub(r"(\uF00C|\uF10C)", "B", self.text, 1)
-            self.text = re.sub(r"(\uF00C|\uF10C)", "C", self.text, 1)
-            self.text = re.sub(r"(\uF00C|\uF10C)", "D", self.text, 1)
 
-            # If answer alternative letters already exist but are lower case, make them upper case.
-            self.text = re.sub(r"^[abcd]\.", "A", self.text, 1, re.MULTILINE)
-            self.text = re.sub(r"^[abcd]\.", "B", self.text, 1, re.MULTILINE)
-            self.text = re.sub(r"^[abcd]\.", "C", self.text, 1, re.MULTILINE)
-            self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
 
             # Delete whitespace that might have been accidentally included if question is last on a page
             pagespaceMatch = re.search(r"(?<=D)*\s*'?\s*$", self.text)
@@ -74,8 +63,20 @@ class Exam:
             self.text = re.sub(r"\t", " ", self.text)
 
             # Isolate the actual question part of the
-            self.question = re.search(r".*(?=^A)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
+            self.question = re.search(r"(\uF00C|\uF10C)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
             self.question = re.search(r".*\S", self.question).group(0)
+
+            # Remove whitespace and add "question" before number, and add letters for answer alternatives,
+            self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "B", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "C", self.text, 1)
+            self.text = re.sub(r"(\uF00C|\uF10C)", "D", self.text, 1)
+
+            # If answer alternative letters already exist but are lower case, make them upper case.
+            self.text = re.sub(r"^[abcd]\.", "A", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "B", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "C", self.text, 1, re.MULTILINE)
+            self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
 
     def __init__(self, text, path):
         # Add text to text string
