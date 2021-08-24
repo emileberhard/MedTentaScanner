@@ -25,7 +25,6 @@ class Exam:
         Course("Klinisk medicin 4", "T9", "medicin 4", "KM4"),
         Course("Individ och samhälle", "T11", "individ", "IoS"),
     ]
-    # Keeps going... But is folded to take less space
 
     # Class for questions - to keep track of question, answer alternatives,
     # and store correct answer
@@ -39,7 +38,11 @@ class Exam:
             # Remove question number from self.text
             self.text = re.sub(r"\d{1,3}", "", self.text, 1)
 
-            ### FIX FORMATTING FOR QUESTIONS ###
+            # Isolate the actual question part of the
+            self.question = re.search(r".*?(?=^[\uF00C\uF10C)✔])", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
+            self.question = re.search(r".*\S", self.question, re.DOTALL).group(0)
+            self.question = re.sub(r"^\s\n", "", self.question)
+
             # Add a "title" to the question
             self.text = re.sub(r"^\s", f"{self.exam.course.name} {self.exam.semester}, Prov {self.exam.number} - Fråga {self.number}", self.text)
 
@@ -51,8 +54,6 @@ class Exam:
                 "C": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[2],
                 "D": re.search(r"(?!.*(\uF00C|\uF10C))(?<=(\uF00C|\uF10C)).*\b", self.text, re.DOTALL).group(0)
             }
-            print("ANSWER A: " + self.answerAlternatives["A"][1])
-
 
             # Delete whitespace that might have been accidentally included if question is last on a page
             pagespaceMatch = re.search(r"(?<=D)*\s*'?\s*$", self.text)
@@ -62,10 +63,6 @@ class Exam:
 
             # Delete extra tabs caused by bad parsing
             self.text = re.sub(r"\t", " ", self.text)
-
-            # Isolate the actual question part of the
-            self.question = re.search(r"(\uF00C|\uF10C)", self.text, flags=re.MULTILINE | re.DOTALL).group(0)
-            self.question = re.search(r".*\S", self.question).group(0)
 
             # Remove whitespace and add "question" before number, and add letters for answer alternatives,
             self.text = re.sub(r"(\uF00C|\uF10C)", "A", self.text, 1)
@@ -78,6 +75,21 @@ class Exam:
             self.text = re.sub(r"^[abcd]\.", "B", self.text, 1, re.MULTILINE)
             self.text = re.sub(r"^[abcd]\.", "C", self.text, 1, re.MULTILINE)
             self.text = re.sub(r"^[abcd]\.", "D", self.text, 1, re.MULTILINE)
+
+            # Parse answer
+            if re.search(r"[A✔]\s*[A✔]", self.text):
+                self.answer = self.answerAlternatives["A"]
+            elif re.search(r"[B✔]\s*[B✔]", self.text):
+                self.answer = self.answerAlternatives["B"]
+            elif re.search(r"[C✔]\s*[C✔]", self.text):
+                self.answer = self.answerAlternatives["C"]
+            elif re.search(r"[D✔]\s*[D✔]", self.text):
+                self.answer = self.answerAlternatives["D"]
+
+            # Clean up question alternatives and answer (remove linebreaks and checkmark)
+            for alternative in self.answerAlternatives:
+                self.answerAlternatives[alternative] = re.sub("\n|✔", "", self.answerAlternatives[alternative])
+            self.answer = re.sub("\n|✔", "", self.answer)
 
     def __init__(self, text, path):
         # Add text to text string
