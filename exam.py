@@ -46,11 +46,12 @@ class Exam:
             print(self.text)
             # Parse answer alternatives
             self.answerAlternatives = {
-                "A": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "B": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "C": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
-                "D": re.search(r"(\uF00C|\uF10C)", self.text, re.MULTILINE | re.DOTALL).group(0),
+                "A": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[0],
+                "B": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[1],
+                "C": re.findall(r"(?<=(?:\uF00C|\uF10C)).*?(?=(?:\uF00C|\uF10C))", self.text, re.DOTALL)[2],
+                "D": re.search(r"(?!.*(\uF00C|\uF10C))(?<=(\uF00C|\uF10C)).*\b", self.text, re.DOTALL).group(0)
             }
+            print("ANSWER A: " + self.answerAlternatives["A"][1])
 
 
             # Delete whitespace that might have been accidentally included if question is last on a page
