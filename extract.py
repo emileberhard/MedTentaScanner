@@ -8,6 +8,7 @@ from exam import Exam
 import textract
 import argparse
 from time import sleep
+from collections import Counter
 
 # Create parser
 parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
@@ -32,16 +33,43 @@ def main(filterwords =args.filterwords):
     # Print quick scan summary with no. of questions found and exams searched
     print(f"Found a total of {len(searchresult)} (out of {totalquestions}) questions containing {filterwords} \n"
           f"Number of exams searched: {len(exams)}\n")
+
     if args.c:
-        checkanswer()
+        checkanswer(exams)
 
     while True:
         newsearch = input("Search for another word or words (or type \"quit\" to quit): ")
+        print("\n")
         if newsearch == "quit":
             quit()
         else:
             newwords = newsearch.split(" ")
             main(newwords)
+
+
+def examswordfreq(exams):
+    joinedrext = ""
+    for exam in exams:
+        joinedrext += exam.text
+
+    allwords = re.findall(r"\b[^\s]+\b", joinedrext)
+
+    wordsfreq = Counter(allwords)
+
+    return wordsfreq
+
+
+def answerwordfreq(exams):
+    joinedanswers = ""
+    for exam in exams:
+        for question in exam.questions:
+            joinedanswers += question.answer
+
+    allwords = re.findall(r"\b[^\s]+\b", joinedanswers)
+
+    wordsfreq = Counter(allwords)
+
+    return wordsfreq
 
 
 def numquestions(exams):
@@ -174,7 +202,7 @@ def category(exams, category):
     print("d")
 
 
-def checkanswer():
+def checkanswer(exams):
     while True:
         # Let user check answer of a question
         print("You can check the answer for a question, or type \"quit\" to exit:")
