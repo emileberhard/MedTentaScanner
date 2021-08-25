@@ -8,7 +8,6 @@ from exam import Exam
 import textract
 import argparse
 from time import sleep
-import sys
 
 # Create parser
 parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
@@ -24,34 +23,36 @@ parser.add_argument('-q', action="store_true", help='quiz mode')
 # Create args variable
 args = parser.parse_args()
 
+
 def extract():
     # Set dir_path to current directory
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     # Create empty list of exam objects
-    exams = []
+    extractedexams = []
 
     # Extract and add text from all exam pdfs to examTexts
     for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
         # Line below is used for testing or for when only certain exams should be searched
-        exams.append(Exam(textract.process(filename, method="pdftotext").decode('utf-8'), filename))
+        extractedexams.append(Exam(textract.process(filename, method="pdftotext").decode('utf-8'), filename))
         print(f"Finished scanning {filename}...\n")
         
-    return exams
+    return extractedexams
+
 
 def search(words):
     # List all questions containing the specified word and count number of questions
-    filterWords = words
-    searchResult = []
+    wordfilter = words
+    searchresult = []
 
     for exam in exams:
         for question in exam.questions:
-            for word in filterWords:
+            for word in wordfilter:
                 if word.lower() in question.text.lower():
-                    searchResult.append(question)
+                    searchresult.append(question)
 
+    return searchresult
 
-    return searchResult
 
 def output(questions, words):
 
@@ -89,6 +90,7 @@ def output(questions, words):
         # Print answer alternatives
         i = 0
         answerAltLetters = ["A", "B", "C", "D"]
+        answerLetter = ""
         for ansAlt in keys:
             answer = False
             if question.answer == question.answerAlternatives[ansAlt]:
@@ -134,11 +136,11 @@ def output(questions, words):
         answerDoc.write(f"<br><br><br>")
         answerDoc.close()
 
-
     if args.a:
         os.remove(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html")
 
-def checkAnswer():
+
+def checkanswer():
     while True:
         # Let user check answer of a question
         print("You can check the answer for a question, or type \"quit\" to exit:")
@@ -151,22 +153,23 @@ def checkAnswer():
             checkTestNo = input("TEST NUMBER (1 or 2): ")
 
             for exam in exams:
-                for question in exam.questions:
-                    if question.number == checkQNumber:
-                        print(f"\nThe answer is: {question.answer}\n")
-                        sleep(2)
+                if exam.semester == checkSemester and exam.number == checkTestNo:
+                    for question in exam.questions:
+                        if question.number == checkQNumber:
+                            print(f"\nThe answer is: {question.answer}\n")
+                            sleep(2)
 
         except:
             print("Invalid entry")
             traceback.print_exc()
+
 
 if __name__ == "__main__":
     exams = extract()
     search = search(args.filterwords)
     output(search, args.filterwords)
     # Print quick scan summary with no. of questions found and exams searched
-    print(f"Found a total of {len(search)} questions containing {args.filterwords} \nNumber of exams searched: {len(exams)}")
+    print(f"Found a total of {len(search)} questions containing {args.filterwords} \n"
+          f"Number of exams searched: {len(exams)}")
     if args.c:
-        checkAnswer()
-
-
+        checkanswer()
