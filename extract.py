@@ -43,12 +43,12 @@ def extract(words, showAnswers):
     # Word(s) to filter questions by
     filterWords = words
 
-    resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "w")
+    resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "w")
     resultDoc.write("<meta charset=\"UTF-8\">")
     resultDoc.write("<style>body {background-color: linen;font-family: Arial, Helvetica, sans-serif;} </style>")
     resultDoc.close()
 
-    answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html", "w")
+    answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html", "w")
     answerDoc.write("<meta charset=\"UTF-8\">")
     answerDoc.write("<style>"
                     "body {background-color: linen;font-family: Arial, Helvetica, sans-serif;} "
@@ -65,10 +65,10 @@ def extract(words, showAnswers):
                 if word.lower() in question.text.lower():
                     # Print questions to both terminal and result file
                     print(f"{question.title}\n{question.question}")
-                    resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "a")
+                    resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "a")
                     resultDoc.write(f"<b><u>{question.title}</b></u><br>{question.question}")
                     resultDoc.close()
-                    answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
+                    answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
                     answerDoc.write(f"<b><u>{question.title}</b></u><br>{question.question}")
                     answerDoc.close()
 
@@ -87,26 +87,26 @@ def extract(words, showAnswers):
 
                         print(f"\n{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}")
                         if answer and showAnswers:
-                            resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "a")
+                            resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "a")
                             resultDoc.write(f"<br><br><b>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}</b>")
                             resultDoc.close()
-                            answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html",
+                            answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html",
                                              "a")
                             answerDoc.write(
                                 f"<br><br><b>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}</b>")
                             answerDoc.close()
                         elif answer:
-                            resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "a")
+                            resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "a")
                             resultDoc.write(f"<br><br>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}")
                             resultDoc.close()
-                            answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
+                            answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
                             answerDoc.write(f"<br><br><b>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}</b>")
                             answerDoc.close()
                         else:
-                            resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "a")
+                            resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "a")
                             resultDoc.write(f"<br><br>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}")
                             resultDoc.close()
-                            answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
+                            answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
                             answerDoc.write(f"<br><br>{answerAltLetters[i]}: {question.answerAlternatives[ansAlt]}")
                             answerDoc.close()
 
@@ -117,10 +117,10 @@ def extract(words, showAnswers):
                         print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
 
                     print("\n")
-                    resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "a")
+                    resultDoc = open(f"Searches/Tentafrågor som innehåller {filterWords}.html", "a")
                     resultDoc.write("<br><br><br>")
                     resultDoc.close()
-                    answerDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
+                    answerDoc = open(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html","a")
                     answerDoc.write(f"<br><br><br>")
                     answerDoc.close()
                     counter += 1
@@ -128,8 +128,8 @@ def extract(words, showAnswers):
     # Print quick scan summary with no. of questions found and exams searched
     print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
     if showAnswers:
-        os.remove(f"Previous searches/Tentafrågor som innehåller {filterWords} FACIT.html")
-        print("removed facit")
+        os.remove(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html")
+
     while True:
         # Let user check answer of a question
         print("You can check the answer for a question, or type \"quit\" to exit:")
