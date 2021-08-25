@@ -24,6 +24,35 @@ parser.add_argument('-q', action="store_true", help='quiz mode')
 args = parser.parse_args()
 
 
+def main(filterwords =args.filterwords):
+    exams = extract()
+    searchresult = search(filterwords, exams)
+    output(searchresult, filterwords)
+    totalquestions = numquestions(exams)
+    # Print quick scan summary with no. of questions found and exams searched
+    print(f"Found a total of {len(searchresult)} (out of {totalquestions}) questions containing {filterwords} \n"
+          f"Number of exams searched: {len(exams)}\n")
+    if args.c:
+        checkanswer()
+
+    while True:
+        newsearch = input("Search for another word or words (or type \"quit\" to quit): ")
+        if newsearch == "quit":
+            quit()
+        else:
+            newwords = newsearch.split(" ")
+            main(newwords)
+
+
+def numquestions(exams):
+    # Simple function to count number of questions in exams
+    number = 0
+    for exam in exams:
+        for question in exam.questions:
+            number += 1
+    return number
+
+
 def extract():
     # Set dir_path to current directory
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -36,11 +65,11 @@ def extract():
         # Line below is used for testing or for when only certain exams should be searched
         extractedexams.append(Exam(textract.process(filename, method="pdftotext").decode('utf-8'), filename))
         print(f"Finished scanning {filename}...\n")
-        
+
     return extractedexams
 
 
-def search(words):
+def search(words, exams):
     # List all questions containing the specified word and count number of questions
     wordfilter = words
     searchresult = []
@@ -140,6 +169,11 @@ def output(questions, words):
         os.remove(f"Searches/Tentafrågor som innehåller {filterWords} FACIT.html")
 
 
+def category(exams, category):
+    Cellcykeln = ["cyklin"]
+    print("d")
+
+
 def checkanswer():
     while True:
         # Let user check answer of a question
@@ -165,11 +199,4 @@ def checkanswer():
 
 
 if __name__ == "__main__":
-    exams = extract()
-    search = search(args.filterwords)
-    output(search, args.filterwords)
-    # Print quick scan summary with no. of questions found and exams searched
-    print(f"Found a total of {len(search)} questions containing {args.filterwords} \n"
-          f"Number of exams searched: {len(exams)}")
-    if args.c:
-        checkanswer()
+    main()
