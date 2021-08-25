@@ -1,7 +1,8 @@
+#!/usr/bin/env python
 import glob
 import os
 import random
-import exam
+from exam import Exam
 import textract
 import argparse
 
@@ -15,7 +16,7 @@ def extract(words):
     # Extract and add text from all exam pdfs to examTexts
     for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
         # Line below is used for testing or for when only certain exams should be searched
-        exams.append(exam.Exam(textract.process(filename).decode('utf-8'), filename))
+        exams.append(Exam(textract.process(filename).decode('utf-8'), filename))
         print(f"Finished scanning {filename}...\n")
 
     # Word(s) to filter questions by
@@ -60,11 +61,11 @@ def extract(words):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
-    parser.add_argument('words',
-                           metavar='path',
+    parser.add_argument('filterwords',
+                           metavar='filterwords',
                            type=str,
-                           help='words to filter by',
+                           help='- words to filter by',
                            nargs="+")
 
-    words = parser.parse_args()
-    extract(words)
+    args = parser.parse_args()
+    extract(args.filterwords)
