@@ -148,7 +148,7 @@ class Exam:
         # Debug
         # Need to make it so that the parser removes Orzone endings from real questions
         # and also removes Orzone-only questions without removing real questions
-        print(f"\nFound a total of {len(self.rawQuestions)} questions BEFORE FORMATTING")
+        print(f"Found a total of {len(self.rawQuestions)} questions BEFORE FORMATTING")
         # Debug
 
         # FILTERING OUT FAKE QUESTIONS
@@ -165,7 +165,7 @@ class Exam:
         self.rawQuestions = [x for x in self.rawQuestions if len(x) > 50]
 
         #Debug
-        print(f"\nFound a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING\n")
+        print(f"Found a total of {len(self.rawQuestions)} questions AFTER INITIAL FORMATTING")
         #Debug
 
         # Make a list of question objects using the questions extracted using split

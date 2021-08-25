@@ -2,11 +2,13 @@
 import glob
 import os
 import random
+import re
+
 from exam import Exam
 import textract
 import argparse
 
-def extract(words):
+def extract(words, showAnswers):
     # Set dir_path to current directory
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -43,13 +45,33 @@ def extract(words):
                         if question.answer in question.answerAlternatives[ansAlt]:
                             answerLetter = answerAltLetters[i]
                         i += 1
-
-                    print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
+                    if showAnswers:
+                        print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
                     print("\n")
                     counter += 1
 
     # Print quick scan summary with no. of questions found and exams searched
     print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
+
+    while True:
+        # Let user check answer of a question
+        print("Type a questions number, test and semester to check answer.")
+        checkQNumber = int(input(f"QUESTION NUMBER: "))
+        checkSemester = input("SEMESTER NUMBER (XTYY): ")
+        checkTestNo = input("TEST NUMBER (1 or 2): ")
+
+
+        try:
+            checkQNumber = input(f"QUESTION NUMBER: ")
+            checkSemester = input("SEMESTER NUMBER (XTYY): ")
+            checkTestNo = input("TEST NUMBER (1 or 2): ")
+
+            for exam in exams:
+                for exam in exams:
+                    if checkSemester.upper() == exam.semester and checkTestNo == exam.number:
+                        print(f"The answer is: {exam.questions[checkQNumber].answer}")
+        except:
+            print("Couldn't find that question... Check your formatting")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
@@ -58,6 +80,7 @@ if __name__ == "__main__":
                            type=str,
                            help='- words to filter by',
                            nargs="+")
+    parser.add_argument('-a', action="store_true", help='show answers')
 
     args = parser.parse_args()
-    extract(args.filterwords)
+    extract(args.filterwords, args.a)
