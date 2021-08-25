@@ -102,6 +102,11 @@ class Exam:
             # Clean up answer
             self.answer = re.sub("\n|✔", "", self.answer)
 
+            # Remove "Orzone AB" from question endings
+            for ansAlt in self.answerAlternatives:
+                self.answerAlternatives[ansAlt] = re.sub(r"OrzoneAB", "", self.answerAlternatives[ansAlt])
+
+
     def __init__(self, text, path):
         # Add text to text string
         self.text = text
