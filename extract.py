@@ -43,6 +43,11 @@ def extract(words, showAnswers):
     # Word(s) to filter questions by
     filterWords = words
 
+    ###testing the merge thingy
+
+    #lines of code...
+    #code
+
     resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "w")
     resultDoc.write("<meta charset=\"UTF-8\">")
     resultDoc.write("<style>body {background-color: linen;font-family: Arial, Helvetica, sans-serif;} </style>")
