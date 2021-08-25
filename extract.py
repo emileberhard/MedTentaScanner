@@ -43,8 +43,6 @@ def extract(words, showAnswers):
     # Word(s) to filter questions by
     filterWords = words
 
-    #other lines of code that have been written in main since the branching
-
     resultDoc = open(f"Previous searches/Tentafrågor som innehåller {filterWords}.html", "w")
     resultDoc.write("<meta charset=\"UTF-8\">")
     resultDoc.write("<style>body {background-color: linen;font-family: Arial, Helvetica, sans-serif;} </style>")
