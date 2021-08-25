@@ -22,9 +22,6 @@ def extract(words):
     # Word(s) to filter questions by
     filterWords = words
 
-    # Open or create txt file for storing questions
-    questionsDoc = open(f"Arkiv/Tentafrågor som innehåller {filterWords}.txt", "w")
-
     # List all questions containing the specified word and count number of questions
     counter = 0
     for exam in exams:
@@ -49,15 +46,10 @@ def extract(words):
 
                     print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
                     print("\n")
-                    #questionsDoc.write(question.text + "\n")
                     counter += 1
 
     # Print quick scan summary with no. of questions found and exams searched
     print(f"\nFound a total of {counter} questions containing {filterWords} \nNumber of exams searched: {len(exams)}\n")
-
-    # Tip to remember for later: Codes below represent the symbol for "correct" and "false"
-    # Rätt = unicode f00c
-    # Fel = unicode f10c
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
