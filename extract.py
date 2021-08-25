@@ -3,7 +3,7 @@ import glob
 import os
 import random
 import re
-
+import traceback
 from exam import Exam
 import textract
 import argparse
@@ -56,22 +56,18 @@ def extract(words, showAnswers):
     while True:
         # Let user check answer of a question
         print("Type a questions number, test and semester to check answer.")
-        checkQNumber = int(input(f"QUESTION NUMBER: "))
-        checkSemester = input("SEMESTER NUMBER (XTYY): ")
-        checkTestNo = input("TEST NUMBER (1 or 2): ")
-
 
         try:
-            checkQNumber = input(f"QUESTION NUMBER: ")
+            checkQNumber = int(input(f"QUESTION NUMBER: ")) - 1
             checkSemester = input("SEMESTER NUMBER (XTYY): ")
             checkTestNo = input("TEST NUMBER (1 or 2): ")
 
             for exam in exams:
-                for exam in exams:
-                    if checkSemester.upper() == exam.semester and checkTestNo == exam.number:
-                        print(f"The answer is: {exam.questions[checkQNumber].answer}")
+                if checkSemester.upper() == exam.semester and checkTestNo == exam.number:
+                    print(f"\nThe answer is: {exam.questions[checkQNumber].answer}\n")
         except:
-            print("Couldn't find that question... Check your formatting")
+            print("Invalid entry")
+            traceback.print_exc()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Filter exam questions by filter words')
