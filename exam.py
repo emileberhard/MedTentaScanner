@@ -146,8 +146,6 @@ class Exam:
             self.rawQuestions = re.split(r"(?:F|f)råga(?=\s)", self.text)
 
         # Debug
-        # Need to make it so that the parser removes Orzone endings from real questions
-        # and also removes Orzone-only questions without removing real questions
         print(f"Found a total of {len(self.rawQuestions)} questions BEFORE FORMATTING")
         # Debug
 

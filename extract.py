@@ -7,6 +7,8 @@ import traceback
 from exam import Exam
 import textract
 import argparse
+from time import sleep
+import sys
 
 def extract(words, showAnswers):
     # Set dir_path to current directory
@@ -16,9 +18,9 @@ def extract(words, showAnswers):
     exams = []
 
     # Extract and add text from all exam pdfs to examTexts
-    for filename in glob.glob(f"{dir_path}/Tentor/*.pdf"):
+    for filename in glob.glob(f"{dir_path}/Tentor/Kunskapsprov 1 HT20 med svar.pdf"):
         # Line below is used for testing or for when only certain exams should be searched
-        exams.append(Exam(textract.process(filename).decode('utf-8'), filename))
+        exams.append(Exam(textract.process(filename, method="pdftotext").decode('utf-8'), filename))
         print(f"Finished scanning {filename}...\n")
 
     # Word(s) to filter questions by
@@ -55,16 +57,20 @@ def extract(words, showAnswers):
 
     while True:
         # Let user check answer of a question
-        print("Type a questions number, test and semester to check answer.")
+        print("You can check the answer for a question, or type \"quit\" to exit:")
 
         try:
-            checkQNumber = int(input(f"QUESTION NUMBER: ")) - 1
+            checkQNumber = input("QUESTION NUMBER (\"quit\" to exit): ")
+            if checkQNumber == "quit":
+                break
             checkSemester = input("SEMESTER NUMBER (XTYY): ")
             checkTestNo = input("TEST NUMBER (1 or 2): ")
 
             for exam in exams:
-                if checkSemester.upper() == exam.semester and checkTestNo == exam.number:
-                    print(f"\nThe answer is: {exam.questions[checkQNumber].answer}\n")
+                for question in exam.questions:
+                    if question.number == checkQNumber:
+                        print(f"\nThe answer is: {question.answer}\n")
+                        sleep(2)
         except:
             print("Invalid entry")
             traceback.print_exc()
