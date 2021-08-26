@@ -190,7 +190,8 @@ def output(questions, words):
             if user_response.lower() == answerLetter.lower():
                 print("CORRECT!")
             else:
-                print(f"Sorry, wrong answer. Correct answer is:\n{answerLetter}: {question.answer}")
+                print(f"\nSorry, wrong answer. Correct answer is:\n{answerLetter}: {question.answer}")
+                sleep(1)
             sleep(1)
 
         # Print answer if show answers flag was used
