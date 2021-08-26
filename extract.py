@@ -28,6 +28,7 @@ args = parser.parse_args()
 def main(filterwords =args.filterwords):
     exams = extract()
     searchresult = search(filterwords, exams)
+    random.shuffle(searchresult)
     output(searchresult, filterwords)
     totalquestions = numquestions(exams)
     # Print quick scan summary with no. of questions found and exams searched
@@ -105,7 +106,7 @@ def search(words, exams):
     for exam in exams:
         for question in exam.questions:
             for word in wordfilter:
-                if word.lower() in question.text.lower():
+                if re.search(rf" {word}", question.text, re.IGNORECASE):
                     searchresult.append(question)
 
     return searchresult
@@ -181,8 +182,19 @@ def output(questions, words):
 
             i += 1
 
+        # Wait for user input if quiz mode flag was used
+        if args.q:
+            user_response = input("\nEnter answer (or type \"quit\" to quit): ")
+            if user_response.lower() == "quit":
+                quit()
+            if user_response.lower() == answerLetter.lower():
+                print("CORRECT!")
+            else:
+                print(f"Sorry, wrong answer. Correct answer is:\n{answerLetter}: {question.answer}")
+            sleep(1)
+
         # Print answer if show answers flag was used
-        if args.a:
+        if args.a and not args.q:
             print(f"\nRÄTT SVAR: {answerLetter} - {question.answer}")
 
         print("\n")
